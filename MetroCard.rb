@@ -1,6 +1,7 @@
 require_relative "MetroCardClassMethods"
 
 class MetroCard    
+  attr_accessor :travel_history, :station, :destination
   @@collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
   @@vertex = {};
   @@station_from = {"CENTRAL"=>"AIRPORT","AIRPORT"=>"CENTRAL"}
@@ -38,6 +39,10 @@ class MetroCard
     def _is_return_journey(trip_from)
       trip_from[_destination] && _passenger_type === trip_from[_destination]["passenger_type"] && trip_from[_destination]["complete"] == false
     end  
+    def reset_class_variables
+      @@vertex = {};
+      @@collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
+    end
     include MetroCardClassMethods
   end
   
