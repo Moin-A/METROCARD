@@ -1,4 +1,4 @@
-module GeektrustInstanceMethods
+module MetroCardHelperMethods
 def  sort_by_count(arr)
     arr.sort_by { |a,b| arr.count(a)<arr.count(a)}
   end  
