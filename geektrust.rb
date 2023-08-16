@@ -8,7 +8,7 @@ class MetroCardApplication
     @metrocard_list = {};
     @passengerData=[];
     @fileinput = fileinput
-    @print_summary=true;
+    @print_summary=false;
   end
 
   def main
