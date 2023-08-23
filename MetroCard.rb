@@ -1,17 +1,9 @@
 require_relative "MetroCardClassMethods"
-
-class MetroCard    
-  attr_accessor :travel_history, :station, :destination
-  @@collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
-  @@vertex = {};
-  @@station_from = {"CENTRAL"=>"AIRPORT","AIRPORT"=>"CENTRAL"}
-    
-  def initialize(item)  
-    @travel_history =  {}  
-    @metro_id = item["metro_id"] 
-    @station = item["station"]
-    @passenger_type = item["passenger_type"]  
-    @destination = @@station_from[@station] 
+require 'pry'
+class MetroCard <  MetroCardClassMethods
+  attr_accessor :travel_history, :station, :destination 
+  def initialize(item)
+    super  
     self.add_passenger
   end    
 
@@ -23,32 +15,24 @@ class MetroCard
     @@vertex[@metro_id].push(@travel_history)
   end
 
-  class << self 
-    def vertex
-      @@vertex
-    end
-    def _station
-      @@station&.keys&.first
-    end
-    def _destination
-      @@station&.values&.first&.keys&.first
-    end
-    def _passenger_type
-      @@station&.values&.first&.values&.first["passenger_type"]
-    end
-    def _is_return_journey(trip_from)
-      trip_from[_destination] && _passenger_type === trip_from[_destination]["passenger_type"] && trip_from[_destination]["complete"] == false
-    end  
-    def reset_class_variables
-      @@vertex = {};
-      @@collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
-    end
-    include MetroCardClassMethods
+  class << self      
+     def update_balace_aumount(balance_details,trip_to,trip_complete)
+        effective_tarif = trip_complete ? passenger_tarif_for(_passenger_type) / 2 : passenger_tarif_for(_passenger_type)
+        trip_to['discount']= effective_tarif if trip_complete
+        trip_to['discount']= 0 if !trip_complete
+       if   balance_details["balance"].to_i < effective_tarif
+        effective_trip_cost = effective_tarif  - balance_details["balance"].to_i
+        trip_to["trip_cost"] +=  effective_trip_cost*0.02
+        balance_details["balance"] = 0;
+       else
+        balance_details["balance"] =  balance_details["balance"].to_i - effective_tarif
+       end      
+      end 
   end
   
-  def self.total_amount_collected(card_list) 
+  def self.total_amount_collected 
     @@vertex.each do |metro_id, travel_history| 
-      result = find_amount_collected_for_metrocard(card_list[metro_id], travel_history)     
+      result = find_amount_collected_for_metrocard(@@card_list[metro_id], travel_history)     
       result.each do |key,value| 
         @@collection[key]["cost"]+=value["trip_cost"];
         @@collection[key]["discount"]+=value["discount"];   

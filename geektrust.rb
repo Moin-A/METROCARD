@@ -18,15 +18,16 @@ class MetroCardApplication
    end
 
   def generate_metro_card
+    MetroCard.card_list=@metrocard_list;
     @passengerData.each do |item|
-     MetroCard.new(item);            
-    end      
+      MetroCard.new(item);            
+    end    
   end
 end
 
 
 def get_total_collection
-  total_collection =  MetroCard.total_amount_collected(@metrocard_list)
+  total_collection =  MetroCard.total_amount_collected
   sort_passengers(total_collection); 
   print_summary(total_collection) if @print_summary
 end  
