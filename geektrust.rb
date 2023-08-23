@@ -1,6 +1,8 @@
 require_relative 'helper/fileModule'
 require_relative 'MetroCard'
 require_relative 'MetroCardHelperMethods'
+require_relative 'ProcessTripCost'
+require_relative 'MetroCardClassMethods'
 class MetroCardApplication 
   include FileModule;
   include MetroCardHelperMethods
@@ -21,13 +23,15 @@ class MetroCardApplication
     MetroCard.card_list=@metrocard_list;
     @passengerData.each do |item|
       MetroCard.new(item);            
-    end    
+    end   
+  
   end
 end
 
 
 def get_total_collection
-  total_collection =  MetroCard.total_amount_collected
+  trip =  ProcessTrip.new()
+  total_collection = trip.total_amount_collected
   sort_passengers(total_collection); 
   print_summary(total_collection) if @print_summary
 end  
