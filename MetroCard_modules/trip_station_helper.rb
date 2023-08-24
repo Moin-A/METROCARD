@@ -16,6 +16,7 @@ module Trip_station_helper
         @@vertex = {};
         @@collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
       end
+      
 
  end   
   

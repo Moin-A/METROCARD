@@ -32,6 +32,7 @@ end
 def get_total_collection
   trip =  ProcessTrip.new()
   total_collection = trip.total_amount_collected
+  binding.pry
   sort_passengers(total_collection); 
   print_summary(total_collection) if @print_summary
 end  
