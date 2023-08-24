@@ -31,10 +31,19 @@ class ProcessTrip < MetroCardClassMethods
     
         return collection
     end
-
+    
+    def process_discount(effective_tarif)
+        if trip_complete_status
+        trip_from[_station]['discount']||=0;
+        trip_from[_station]['discount']+=effective_tarif.to_i   
+        else
+        trip_from[_station]['discount'] = 0
+        end
+    end
 
     def update_balace_aumount(balance_details)       
         effective_tarif = passenger_tarif_for {TRIP_FARE[_passenger_type]}    
+        process_discount(effective_tarif)
         if balance_details["balance"].to_i < effective_tarif                      
             process_balance_recharge_cost { effective_tarif -= balance_details["balance"].to_i}
             balance_details["balance"] = 0;

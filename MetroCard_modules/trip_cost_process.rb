@@ -1,7 +1,6 @@
 module Process_trip_change_and_discount
     def passenger_tarif_for (&passenger_type)            
-        if trip_complete_status   
-            trip_from[_station]['discount'] =  (passenger_type.call()/2).to_i   
+        if trip_complete_status              
             (passenger_type.call()/2).to_i
         else
             trip_from[_station]['discount']= 0
