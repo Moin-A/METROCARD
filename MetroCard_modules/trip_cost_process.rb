@@ -20,6 +20,15 @@ module Process_trip_change_and_discount
         trip_from[_station]["trip_cost"] +=  (effective_cost.call()*ProcessTrip::TRIP_COST_PERCENTAG).to_i        
     end    
 
+    def process_discount(effective_tarif)
+        if trip_complete_status
+        trip_from[_station]['discount']||=0;
+        trip_from[_station]['discount']+=effective_tarif.to_i   
+        else
+        trip_from[_station]['discount'] = 0
+        end
+    end
+    
     def process_trip_segment(trip_leg)     
         trip_from[_station] ||= {} 
         trip_from[_station]["trip_cost"]||=0;
