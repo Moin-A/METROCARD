@@ -3,27 +3,30 @@ require_relative 'MetroCard_modules/trip_cost_process.rb'
 class ProcessTrip < MetroCardClassMethods
         include Trip_station_helper  
         include Process_trip_change_and_discount
-        attr_accessor :travel_history, :station, :destination 
-
+        attr_accessor :travel_history, :station, :destination , :collection, :trip_complete_status, :trip_from
+        TRIP_COST_PERCENTAG = 0.02
+        RETURN_TRIP_DISCOUNT = 0.5
+        
+        
     def initialize
-       
+        @collection ={"CENTRAL"=>{"cost"=>0,"discount"=>0,"passengers"=>[]},"AIRPORT"=>{"cost"=>0,"discount"=>0,"passengers"=>[]}}
+        @trip_complete_status = false
     end
 
 
     def total_amount_collected    
         @@vertex.each do |metro_id, travel_history| 
-            
-            result = find_amount_collected_for_metrocard(@@card_list[metro_id], travel_history)    
-
+            balance_details = @@card_list[metro_id]
+            result = find_amount_collected_for_metrocard(balance_details,travel_history)    
                 result.each do |key,value| 
-                    @@collection[key]["cost"]+=value["trip_cost"];
-                    @@collection[key]["discount"]+=value["discount"];   
-                    @@collection[key]["passengers"]+=value["passenger"];     
+                    collection[key]["cost"]+=value["trip_cost"];
+                    collection[key]["discount"]+=value["discount"];   
+                    collection[key]["passengers"]+=value["passenger"];     
                 end
             
             end
     
-        return @@collection
+        return collection
     end
 
 
@@ -34,7 +37,7 @@ class ProcessTrip < MetroCardClassMethods
         trip_to['discount']= 0 if !trip_complete
         if balance_details["balance"].to_i < effective_tarif
         effective_trip_cost = effective_tarif  - balance_details["balance"].to_i
-        trip_to["trip_cost"] +=  effective_trip_cost*0.02
+        trip_to["trip_cost"] +=  (effective_trip_cost*TRIP_COST_PERCENTAG).to_i
         balance_details["balance"] = 0;
         else
         balance_details["balance"] =  balance_details["balance"].to_i - effective_tarif
@@ -45,23 +48,27 @@ class ProcessTrip < MetroCardClassMethods
 
     def find_amount_collected_for_metrocard(balance_details, trip_info)    
         
-        trip_from={}
-        trip_info.each do |station, destination| 
-            binding.pry    
-             @station = station             
-            if _is_return_journey(trip_from)    
-                process_trip_segment(trip_from,_destination,_station)   
-                trip_from[_station]["trip_cost"] = (passenger_tarif_for(_passenger_type) * 0.5 ).to_i   
-                update_balace_aumount(balance_details, trip_from[_station], true); 
-                
+        @trip_from={}
+
+        trip_info.each do |station, destination|       
+             @station = station  
+                     
+            if _is_return_journey   
+                process_trip_segment(_destination)   
+                trip_from[_station]["trip_cost"] = (passenger_tarif_for(_passenger_type) * RETURN_TRIP_DISCOUNT ).to_i                                                                                  
+                update_balace_aumount(balance_details, trip_from[_station], true);                                               
                 else               
-                process_trip_segment(trip_from,_station,_station)       
-                trip_from[_station]["trip_cost"] = (trip_from[_station]["trip_cost"] || 0) + passenger_tarif_for(_passenger_type)          
-                update_balace_aumount(balance_details, trip_from[_station], false);  
+                process_trip_segment(_station)     
+                trip_from[_station]["trip_cost"] +=  passenger_tarif_for(_passenger_type)                                                 
+                update_balace_aumount(balance_details, trip_from[_station], false);                              
 
             end              
         end    
-        return  trip_from        
+        
+        result = trip_from.clone 
+        trip_from.clear()
+
+        return  result      
 
     end   
 end     

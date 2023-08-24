@@ -11,12 +11,20 @@ module Process_trip_change_and_discount
           0
         end
     end
-    def process_trip_segment(trip_to,trip_leg,current_station)
-        trip_to[_station] ||= {} 
-        trip_to[_station]["passenger_type"] = _passenger_type;  
-        trip_to[trip_leg]["complete"] =  trip_to[trip_leg]["complete"]==nil ?  false : !trip_to[trip_leg]["complete"]  
-        trip_to[current_station]["passenger"]||=[]
-        trip_to[current_station]["passenger"].push(_passenger_type);          
+    
+    def get_trip_complete_status(&trip_is_return_type)          
+        trip_from[_station]["complete"] = trip_is_return_type.call()        
+    end
+        
+
+    def process_trip_segment(trip_leg)       
+        trip_from[_station] ||= {} 
+        trip_from[_station]["trip_cost"]||=0;
+        trip_from[_station]["passenger_type"] = _passenger_type;          
+        trip_from[_station]["passenger"]||=[]
+        trip_from[_station]["passenger"].push(_passenger_type);         
+        trip_from[trip_leg]["complete"] = get_trip_complete_status {trip_leg!=_station}
+        # trip_from[trip_leg]["complete"] =  trip_from[trip_leg]["complete"]==nil ?  false : !trip_from[trip_leg]["complete"]         
     end
 
 end
